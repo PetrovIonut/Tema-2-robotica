@@ -31,7 +31,7 @@ const String wordList[numWords] = {
   "station", "hobby", "prison", "trunk", "appoint", "disappoint", "collection", "treat", "charm", "light", "reliable"
 };
 
-enum class GameDifficulty {
+enum GameDifficulty {
   UNKNOWN = -1,
   EASY = 0,
   MEDIUM = 1,
@@ -75,7 +75,7 @@ void handleDifficultyChange() {
 void changeDifficulty() {
   triggerDifficultyChange = false;
   
-  difficulty = static_cast<GameDifficulty>((static_cast<int>(difficulty) + 1) % 3);
+  difficulty = (GameDifficulty)(((int)difficulty + 1) % 3); // returns a value between 0-2
 
   switch (difficulty) {
     case GameDifficulty::EASY:
@@ -135,12 +135,12 @@ void startGame() {
   
   noInterrupts();
 
-  TCCR1A = 0;
-  TCCR1B = 0;
-  TCNT1 = 0;
+  TCCR1A = 0;   //reset timer 1 reg A 
+  TCCR1B = 0;   // reset timer 1 reg B
+  TCNT1 = 0;     // reset timer 1 counter
 
   const unsigned long systemClock = 16000000;
-  const unsigned long prescalerValue = 1024;
+  const int prescalerValue = 1024;
   const unsigned long compareMatch = (systemClock / prescalerValue) * wordDuration / 1000 - 1;
 
   OCR1A = compareMatch;
@@ -233,6 +233,8 @@ void setup() {
   }
 
   attachInterrupt(digitalPinToInterrupt(difficultyButtonPin), handleDifficultyChange, LOW);
+   //attaches a handler to a digital pin, converts pin number in an interrupt number,
+   // calls function when button state is LOW(button pressed)
   attachInterrupt(digitalPinToInterrupt(startStopButtonPin), handleStartStop, LOW);
 
   resetGameState();
@@ -268,7 +270,7 @@ void loop() {
         if (userInput.length() > 0) {
           userInput.remove(userInput.length() - 1);
           
-          Serial.print("\r" + repeatChar(' ', userInput.length()) + "\r" + userInput);
+          Serial.print("\r" + repeatChar(' ', userInput.length()) + "\r" + userInput); // 
         }
       } else if (inputChar == '\n') {
         userInput = "";
